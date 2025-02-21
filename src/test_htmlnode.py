@@ -77,3 +77,57 @@ class TestLeafNode(unittest.TestCase):
         render_string = '<p>Kabal Wins1</p>'
         
         self.assertNotEqual(node.to_html(), render_string)
+        
+    def test5(self):
+        node = LeafNode(None, None)
+        
+        self.assertRaises(ValueError)
+        
+
+class TestParentNode(unittest.TestCase):
+    
+    def test(self):
+        node = ParentNode(
+            "p",
+            [
+                LeafNode("b", "Bold text"),
+                LeafNode(None, "Normal text"),
+                LeafNode("i", "italic text"),
+                LeafNode(None, "Normal text"),
+            ],
+        )
+        
+        render_string = '<p><b>Bold text</b>Normal text<i>italic text</i>Normal text</p>'
+        
+        self.assertEqual(node.to_html(), render_string)
+        
+        
+    def test2(self):
+        nested_node = ParentNode(
+            "div",
+            [
+                ParentNode(
+                    "p",
+                    [LeafNode("b", "Bold text")]
+                ),
+                LeafNode(None, "Normal text")
+            ]
+        )
+        
+        render_string = '<div><p><b>Bold text</b></p>Normal text</div>'
+        
+        self.assertEqual(nested_node.to_html(), render_string)
+        
+        
+    def test3(self):
+        node = ParentNode(
+            "p",
+            [
+                LeafNode(None, None),
+                LeafNode(None, None),
+                LeafNode(None, None),
+                LeafNode(None, None),
+            ],
+        )
+
+        self.assertRaises(ValueError)
