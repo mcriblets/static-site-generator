@@ -78,6 +78,7 @@ class TestLeafNode(unittest.TestCase):
         
         self.assertNotEqual(node.to_html(), render_string)
         
+        
     def test5(self):
         node = LeafNode(None, None)
         
@@ -131,3 +132,30 @@ class TestParentNode(unittest.TestCase):
         )
 
         self.assertRaises(ValueError)
+        
+        
+    def test4(self):
+        node = ParentNode(
+            "<b>",
+            [],
+        )
+
+        self.assertRaises(ValueError)
+        
+    
+    def test5(self):
+        nested_node = ParentNode(
+            "div",
+            [
+                ParentNode(
+                    "p",
+                    [LeafNode("b", "Bold text")]
+                ),
+                LeafNode(None, "Normal text")
+            ],
+            {"href": "https://www.google.com"}
+        )
+        
+        render_string = '<div href="https://www.google.com"><p><b>Bold text</b></p>Normal text</div>'
+        
+        self.assertEqual(nested_node.to_html(), render_string)
