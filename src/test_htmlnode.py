@@ -1,6 +1,8 @@
 import unittest
 
 from htmlnode import *
+from textnode import *
+from main import *
 
 class TestHTMLNode(unittest.TestCase):
     
@@ -159,3 +161,72 @@ class TestParentNode(unittest.TestCase):
         render_string = '<div href="https://www.google.com"><p><b>Bold text</b></p>Normal text</div>'
         
         self.assertEqual(nested_node.to_html(), render_string)
+        
+
+class TextToHTML(unittest.TestCase):
+    
+    def test(self):
+        test_node = TextNode("this is a text node", TextType.TEXT, "https://www.boot.dev")
+        
+        html_node = text_node_to_html_node(test_node)
+        self.assertEqual(html_node.tag, None)
+        self.assertEqual(html_node.value, "this is a text node")
+        self.assertIsNone(html_node.props)
+        
+    
+    def test2(self):
+        test_node = TextNode("this is a text node", TextType.BOLD, "https://www.boot.dev")
+        
+        html_node = text_node_to_html_node(test_node)
+        self.assertEqual(html_node.tag, "b")
+        self.assertEqual(html_node.value, "this is a text node")
+        self.assertIsNone(html_node.props)
+        
+    
+    def test3(self):
+        test_node = TextNode("this is a text node", TextType.ITALIC, "https://www.boot.dev")
+        
+        html_node = text_node_to_html_node(test_node)
+        self.assertEqual(html_node.tag, "i")
+        self.assertEqual(html_node.value, "this is a text node")
+        self.assertIsNone(html_node.props)
+        
+        
+    def test4(self):
+        test_node = TextNode("this is a text node", TextType.CODE, "https://www.boot.dev")
+        
+        html_node = text_node_to_html_node(test_node)
+        self.assertEqual(html_node.tag, "code")
+        self.assertEqual(html_node.value, "this is a text node")
+        self.assertIsNone(html_node.props)
+        
+        
+    def test5(self):
+        test_node = TextNode("this is a text node", TextType.LINK, "https://www.boot.dev")
+        
+        html_node = text_node_to_html_node(test_node)
+        self.assertEqual(html_node.tag, "a")
+        self.assertEqual(html_node.value, "this is a text node")
+        self.assertIsNotNone(html_node.props)
+        self.assertEqual(html_node.props, {'href': 'https://www.boot.dev'})
+        
+        
+    def test6(self):
+        test_node = TextNode("this is a text node", TextType.IMAGE, "https://www.boot.dev")
+        
+        html_node = text_node_to_html_node(test_node)
+        self.assertEqual(html_node.tag, "img")
+        self.assertEqual(html_node.value, "")
+        self.assertIsNotNone(html_node.props)
+        self.assertEqual(html_node.props, {"src": "https://www.boot.dev", "alt": "this is a text node"})
+        
+        
+    def test7(self):
+        
+        with self.assertRaises(Exception) as exc:
+            test_node = TextNode("this is a text node", "BOOP", "https://www.boot.dev")
+        
+            html_node = text_node_to_html_node(test_node)
+        
+        self.assertEqual(str(exc.exception), "Not a supported TextType.")
+            
