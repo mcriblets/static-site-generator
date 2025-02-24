@@ -1,5 +1,7 @@
+import re
 from textnode import *
 from htmlnode import *
+from splitnodes import *
 
 
 def text_node_to_html_node(text_node):
@@ -20,29 +22,11 @@ def text_node_to_html_node(text_node):
     return html_node
 
 
-def split_nodes_delimiter(old_nodes, delimiter, text_type):
-    
-    split_nodes_list = []
-    
-    for old_node in old_nodes:
-        if old_node.text_type is not TextType.TEXT:
-            split_nodes_list.append(old_node)
-        else:
-            new_nodes = old_node.text.split(delimiter)
-            if len(new_nodes) == 1:
-                split_nodes_list.append(TextNode(new_nodes[0], TextType.TEXT))
-            elif len(new_nodes) == 3:
-                split_nodes_list.append(TextNode(new_nodes[0], TextType.TEXT))
-                split_nodes_list.append(TextNode(new_nodes[1], text_type))
-                split_nodes_list.append(TextNode(new_nodes[2], TextType.TEXT))
-            else:
-                raise Exception("Delimiter mismatch found!  No closing delimiter found!")
-    
-    return split_nodes_list
-
-
 def main():
-    test_node = TextNode("this is a text node", TextType.TEXT, "https://www.boot.dev")
+    test_node = TextNode(
+    "This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)",
+    TextType.TEXT
+    )
     
     old_nodes = [
         TextNode("this is a `text` node", TextType.CODE, "https://www.boot.dev"),
@@ -50,7 +34,8 @@ def main():
         TextNode("This is text with a `code block` word", TextType.TEXT)
     ]
     
-    split_nodes_delimiter(old_nodes, "`", TextType.TEXT)
+    split_nodes_link([test_node])
+    
     
     
 if __name__ == "__main__":
