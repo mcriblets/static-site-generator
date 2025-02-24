@@ -23,18 +23,15 @@ def text_node_to_html_node(text_node):
 
 
 def main():
-    test_node = TextNode(
-    "This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)",
-    TextType.TEXT
-    )
-    
     old_nodes = [
         TextNode("this is a `text` node", TextType.CODE, "https://www.boot.dev"),
         TextNode("this is a text node", TextType.TEXT, "https://www.boot.dev"),
         TextNode("This is text with a `code block` word", TextType.TEXT)
     ]
     
-    split_nodes_link([test_node])
+    text = "This is **text** with an *italic* word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)"
+    test_node = TextNode(text, TextType.TEXT)
+    text_to_textnodes(test_node)
     
     
     

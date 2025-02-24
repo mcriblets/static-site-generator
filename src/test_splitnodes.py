@@ -168,7 +168,45 @@ class TestSplitNodesImage(unittest.TestCase):
         
         node = TextNode("Plain text only", TextType.TEXT)
         image_nodes = split_nodes_image([node])
-        image_test = [TextNode(Plain text only, normal, None)]
+        image_test = [TextNode("Plain text only", TextType.TEXT, None)]
         
         self.assertEqual(len(image_nodes), len(image_test))
         self.assertEqual(image_nodes, image_test)
+        
+
+class TestTexttoTextNodes(unittest.TestCase):
+    
+    def test(self):
+        
+        text = "Hello World!"
+        conversion = text_to_textnodes(text)
+        expected_output = [TextNode("Hello World!", TextType.TEXT, None)]
+        
+        self.assertEqual(conversion, expected_output)
+        
+        
+    def test2(self):
+        
+        text = "Hello **world**"
+        conversion = text_to_textnodes(text)
+        expected_output = [TextNode("Hello ", TextType.TEXT, None), TextNode("world", TextType.BOLD, None)]
+        
+        self.assertEqual(conversion, expected_output)
+        
+        
+    def test3(self):
+        
+        text = "Hello **world** with *italic*"
+        conversion = text_to_textnodes(text)
+        expected_output = [TextNode("Hello ", TextType.TEXT, None), TextNode("world", TextType.BOLD, None), TextNode(" with ", TextType.TEXT, None), TextNode("italic", TextType.ITALIC, None)]
+        
+        self.assertEqual(conversion, expected_output)
+        
+    
+    def test4(self):
+        
+        text = "Click [here](https://boot.dev)"
+        conversion = text_to_textnodes(text)
+        expected_output = [TextNode("Click ", TextType.TEXT, None), TextNode("here", TextType.LINK, None)]
+        
+        self.assertEqual(conversion, expected_output)
