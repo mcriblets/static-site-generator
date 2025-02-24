@@ -111,4 +111,19 @@ def text_to_textnodes(text):
     image_split = split_nodes_image(link_split)
     
     return image_split
+
+
+def markdown_to_blocks(markdown):
+    
+    markdown_split_list = []
+    
+    markdown_split = markdown.split("\n\n")
+    
+    for markdown in markdown_split:
+        if markdown != "":
+            markdown = markdown.strip()
+            markdown_split_list.append(markdown)
+    
+    print(markdown_split_list)
+    return markdown_split_list
     
