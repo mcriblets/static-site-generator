@@ -115,6 +115,8 @@ def text_to_textnodes(text):
 
 def markdown_to_blocks(markdown):
     
+    markdown = re.sub(r'\n\s+\n', '\n\n', markdown)
+    
     markdown_split_list = []
     
     markdown_split = markdown.split("\n\n")
@@ -124,6 +126,5 @@ def markdown_to_blocks(markdown):
             markdown = markdown.strip()
             markdown_split_list.append(markdown)
     
-    print(markdown_split_list)
     return markdown_split_list
     

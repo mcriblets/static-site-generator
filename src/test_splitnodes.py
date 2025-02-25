@@ -210,3 +210,45 @@ class TestTexttoTextNodes(unittest.TestCase):
         expected_output = [TextNode("Click ", TextType.TEXT, None), TextNode("here", TextType.LINK, None)]
         
         self.assertEqual(conversion, expected_output)
+        
+        
+class TestMarkdowntoBlocks(unittest.TestCase):
+    
+    def test(self):
+        markdown = """# This is a heading
+
+            This is a paragraph of text. It has some **bold** and *italic* words inside of it.
+
+            * This is the first list item in a list block
+            * This is a list item
+            * This is another list item
+                """
+        markdown_blocks = markdown_to_blocks(markdown)
+        
+        self.assertEqual(len(markdown_blocks), 3)
+        
+        
+    def test2(self):
+        markdown = "This is a single block"
+        expected = ["This is a single block"]
+        markdown_blocks = markdown_to_blocks(markdown)
+        
+        self.assertEqual(markdown_blocks, expected)
+        
+    
+    def test3(self):
+        markdown = """# This is a heading
+
+            ## This is a paragraph of text with a header. It has some **bold** and *italic* words inside of it.
+
+            ### This is the first list item in a list block
+            
+            #### This is a list item
+            
+            ##### This is another list item
+                """
+                
+        #print(repr(markdown))
+        markdown_blocks = markdown_to_blocks(markdown)
+        
+        self.assertEqual(len(markdown_blocks), 5)
