@@ -1,7 +1,17 @@
 import re
 
+from enum import Enum
 from textnode import *
 from htmlnode import *
+
+class BlockType(Enum):
+    PARAGRAPH = "paragraph"
+    HEADING = "heading"
+    CODE = "code"
+    QUOTE = "quote"
+    UNORDERED_LIST = "unordered_list"
+    ORDERED_LIST = "ordered_list"
+    
 
 def split_nodes_delimiter(old_nodes, delimiter, text_type):
     
@@ -128,3 +138,30 @@ def markdown_to_blocks(markdown):
     
     return markdown_split_list
     
+
+def is_ordered_list(lines):
+    for i, line in enumerate(lines, start=1):
+        expected_start = str(i) + ". "
+        if not line.startswith(expected_start):
+            return False
+    return True
+
+
+def block_to_blocktype(markdown):
+    
+    lines = markdown.split("\n")
+    
+    if markdown.startswith(("# ", "## ", "### ", "#### ", "##### ", "###### ")):
+        return BlockType.HEADING
+    elif markdown.startswith("```") and markdown.endswith("```"):
+        return BlockType.CODE
+    elif all(line.startswith(">") for line in lines):
+        return BlockType.QUOTE
+    elif all(line.startswith(("* ", "- ")) for line in lines):
+        return BlockType.UNORDERED_LIST
+    elif is_ordered_list(lines):
+        return BlockType.ORDERED_LIST
+    else:
+        return BlockType.PARAGRAPH
+            
+        

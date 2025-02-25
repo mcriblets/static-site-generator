@@ -248,7 +248,56 @@ class TestMarkdowntoBlocks(unittest.TestCase):
             ##### This is another list item
                 """
                 
-        #print(repr(markdown))
         markdown_blocks = markdown_to_blocks(markdown)
-        
         self.assertEqual(len(markdown_blocks), 5)
+        
+        
+class TestBlocktoBlockType(unittest.TestCase):
+    
+    def test(self):
+        markdown_block = "# Test Heading"
+        blocktype = block_to_blocktype(markdown_block)
+        
+        self.assertEqual(blocktype, BlockType.HEADING)
+        
+        
+    def test2(self):
+        markdown_block = "### Test Heading"
+        blocktype = block_to_blocktype(markdown_block)
+        
+        self.assertEqual(blocktype, BlockType.HEADING)
+        
+        
+    def test3(self):
+        markdown_block = "###### Test Heading"
+        blocktype = block_to_blocktype(markdown_block)
+        
+        self.assertEqual(blocktype, BlockType.HEADING)
+        
+        
+    def test4(self):
+        markdown_block = "```Test Code Block```"
+        blocktype = block_to_blocktype(markdown_block)
+        
+        self.assertEqual(blocktype, BlockType.CODE)
+        
+        
+    def test5(self):
+        markdown_block = ">Testing\n>Quote\n>Did it work?"
+        blocktype = block_to_blocktype(markdown_block)
+
+        self.assertEqual(blocktype, BlockType.QUOTE)
+        
+        
+    def test6(self):
+        markdown_block = "* Testing\n* Unordered List\n* Did it work?"
+        blocktype = block_to_blocktype(markdown_block)
+
+        self.assertEqual(blocktype, BlockType.UNORDERED_LIST)
+        
+        
+    def test7(self):
+        markdown_block = "1. Testing\n2. Ordered List\n3. Did it work?"
+        blocktype = block_to_blocktype(markdown_block)
+
+        self.assertEqual(blocktype, BlockType.ORDERED_LIST)
