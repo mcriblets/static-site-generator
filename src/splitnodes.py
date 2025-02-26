@@ -39,6 +39,24 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
     return split_nodes_list
 
 
+def text_node_to_html_node(text_node):
+    if text_node.text_type == TextType.TEXT:
+        html_node = LeafNode(None, text_node.text)
+    elif text_node.text_type == TextType.BOLD:
+        html_node = LeafNode("b", text_node.text)
+    elif text_node.text_type == TextType.ITALIC:
+        html_node = LeafNode("i", text_node.text)
+    elif text_node.text_type == TextType.CODE:
+        html_node = LeafNode("code", text_node.text)
+    elif text_node.text_type == TextType.LINK:
+        html_node = LeafNode("a", text_node.text, {"href": text_node.url})
+    elif text_node.text_type == TextType.IMAGE:
+        html_node = LeafNode("img", "", {"src": text_node.url, "alt": text_node.text})
+    else:
+        raise Exception("Not a supported TextType.")
+    return html_node
+
+
 def extract_markdown_images(text):
     matches = re.findall(r"!\[([^\[\]]*)\]\(([^\(\)]*)\)", text)
     
@@ -115,7 +133,8 @@ def text_to_textnodes(text):
     text_nodes = [TextNode(text, TextType.TEXT)]
 
     bold_split = split_nodes_delimiter(text_nodes, "**", TextType.BOLD)
-    italic_split = split_nodes_delimiter(bold_split, "*", TextType.ITALIC)
+    italic_split = split_nodes_delimiter(bold_split, "_", TextType.ITALIC)
+    italic_split = split_nodes_delimiter(italic_split, "*", TextType.ITALIC)
     code_split = split_nodes_delimiter(italic_split, "`", TextType.CODE)
     link_split = split_nodes_link(code_split)
     image_split = split_nodes_image(link_split)
@@ -132,8 +151,8 @@ def markdown_to_blocks(markdown):
     markdown_split = markdown.split("\n\n")
     
     for markdown in markdown_split:
+        markdown = markdown.strip()
         if markdown != "":
-            markdown = markdown.strip()
             markdown_split_list.append(markdown)
     
     return markdown_split_list
@@ -163,5 +182,117 @@ def block_to_blocktype(markdown):
         return BlockType.ORDERED_LIST
     else:
         return BlockType.PARAGRAPH
-            
+ 
+ 
+def get_header_value(header_markdown):
+    header_count = header_markdown.count('#')
+    remove_header = re.sub(r'^#*\s', '', header_markdown)
+     
+    if header_count > 6:
+        header_count = 6
         
+    header_tag = "h" + str(header_count)
+    
+    return (header_tag, remove_header)
+
+
+def remove_backticks(code_markdown):
+    raw_code = code_markdown.strip("```")
+    
+    return raw_code
+
+
+def remove_markdown_quotes(quote_markdown):
+    raw_quote = re.sub(r'^>*\s', '', quote_markdown, flags=re.MULTILINE)
+    
+    raw_quote = raw_quote.strip()
+    raw_quote = raw_quote.split('\n')
+    raw_quote = " ".join(raw_quote)
+    
+    return raw_quote
+
+
+def remove_unordered_list(list_markdown):
+    raw_list = re.sub(r'^\* ', '', list_markdown, flags=re.MULTILINE)
+    
+    raw_list = raw_list.split("\n")
+    
+    filtered_list = list(filter(None, raw_list))
+    
+    return filtered_list
+
+
+def remove_ordered_list(list_markdown):
+    raw_list = re.sub(r'^\d+\. ', '', list_markdown, flags=re.MULTILINE)
+    
+    raw_list = raw_list.split("\n")
+    
+    filtered_list = list(filter(None, raw_list))
+    
+    return filtered_list
+
+
+def text_to_children(text):
+    textnode_list = text_to_textnodes(text)
+    
+    children_list = []
+    
+    for textnode in textnode_list:
+        html_node = text_node_to_html_node(textnode)
+        children_list.append(html_node)
+
+    return children_list
+    
+    
+            
+def markdown_to_html_node(markdown):
+    markdown_blocks = markdown_to_blocks(markdown)
+    
+    child_nodes = []
+    
+    for block in markdown_blocks:
+        blocktype = block_to_blocktype(block)
+
+        if blocktype == BlockType.HEADING:
+            header_tag, content = get_header_value(block)
+            children = text_to_children(content)
+            node = HTMLNode(header_tag, None, children)
+            child_nodes.append(node)
+        elif blocktype == BlockType.CODE:
+            content = remove_backticks(block)
+            code_node = HTMLNode("code", content, None)
+            node = HTMLNode("pre", None, [code_node])
+            child_nodes.append(node)
+        elif blocktype == BlockType.QUOTE:
+            content = remove_markdown_quotes(block)
+            children = text_to_children(content)
+            node = HTMLNode("blockquote", None, children)
+            child_nodes.append(node)
+        elif blocktype == BlockType.UNORDERED_LIST:
+            unordered_list_raw = remove_unordered_list(block)
+            node_list = []
+            for item in unordered_list_raw:
+                children = text_to_children(item)
+                node = HTMLNode("li", None, children)
+                node_list.append(node)
+            list_node = HTMLNode("ul", None, node_list)
+            child_nodes.append(list_node)
+        elif blocktype == BlockType.ORDERED_LIST:
+            ordered_list_raw = remove_ordered_list(block)
+            node_list = []
+            for item in ordered_list_raw:
+                children = text_to_children(item)
+                node = HTMLNode("li", None, children)
+                node_list.append(node)
+            list_node = HTMLNode("ol", None, node_list)
+            child_nodes.append(list_node)
+        elif blocktype == BlockType.PARAGRAPH:
+            block = re.sub(r'\s+', ' ', block)
+            block = block.strip()
+            children = text_to_children(block)
+            node = HTMLNode("p", None, children)
+            child_nodes.append(node)
+        else:
+            raise ValueError("Unknown Blocktype!")
+        
+    return HTMLNode("div", None, child_nodes)

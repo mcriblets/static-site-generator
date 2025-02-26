@@ -3,6 +3,7 @@ import unittest
 from htmlnode import *
 from textnode import *
 from splitnodes import *
+from textwrap import dedent
 
 class TestSplitNodes(unittest.TestCase):
     
@@ -301,3 +302,81 @@ class TestBlocktoBlockType(unittest.TestCase):
         blocktype = block_to_blocktype(markdown_block)
 
         self.assertEqual(blocktype, BlockType.ORDERED_LIST)
+        
+        
+class TestMarkdowntoHTMLNode(unittest.TestCase):
+    
+    def test_paragraphs(self):
+        md = dedent("""
+        This is **bolded** paragraph
+        text in a p
+        tag here
+
+        This is another paragraph with _italic_ text and `code` here
+
+        """)
+
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><p>This is <b>bolded</b> paragraph text in a p tag here</p><p>This is another paragraph with <i>italic</i> text and <code>code</code> here</p></div>",
+        )
+        
+    def test_mixed_lists(self):
+        md = dedent("""
+            1. First ordered item
+            2. Second ordered item
+
+            * Unordered item 1
+            * Unordered item 2
+            """)
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><ol><li>First ordered item</li><li>Second ordered item</li></ol><ul><li>Unordered item 1</li><li>Unordered item 2</li></ul></div>"
+        )
+        
+        
+    def test_separate_formatting(self):
+        md = dedent("""
+            # This is a heading with **bold** and _italic_ separately
+            """)
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><h1>This is a heading with <b>bold</b> and <i>italic</i> separately</h1></div>"
+        )
+        
+    def test_blockquote(self):
+        md = dedent("""
+    > This is a quote
+    > with **bold** text
+    > across multiple lines
+    """)
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><blockquote>This is a quote with <b>bold</b> text across multiple lines</blockquote></div>"
+        )
+        
+        
+    def test_multiple_paragraphs_with_whitespace(self):
+        md = dedent("""
+
+    First paragraph
+    with multiple lines
+
+        Second paragraph
+        with extra spaces
+
+    """)
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><p>First paragraph with multiple lines</p><p>Second paragraph with extra spaces</p></div>"
+        )
