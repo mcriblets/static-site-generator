@@ -127,7 +127,7 @@ def split_nodes_link(old_nodes):
             
     return split_nodes_list
 
-            
+
 def text_to_textnodes(text):
 
     text_nodes = [TextNode(text, TextType.TEXT)]

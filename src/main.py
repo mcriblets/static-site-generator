@@ -4,6 +4,7 @@ import shutil
 from textnode import *
 from htmlnode import *
 from splitnodes import *
+from http.server import HTTPServer, SimpleHTTPRequestHandler
 
 
 def copy_contents(source_directory, target_directory): 
@@ -38,8 +39,40 @@ def copy_contents_prime(source_directory, target_directory):
     shutil.copytree(source_path, target_path) 
 
 
+def extract_title(markdown):
+    h1 = markdown_to_html_node(markdown)
+
+    for node in h1.children:
+        if node.tag == "h1":
+            return node.children[0].value
+        
+    raise Exception("No h1 header found!")
+
+
+def generate_page(from_path, template_path, dest_path):
+    print(f"Generating a page from {from_path} to {dest_path} using {template_path}!")
+    
+    source_file = open(from_path, "r")
+    source_content = source_file.read()
+    
+    template_file = open(template_path, "r")
+    template_content = template_file.read()
+    
+    nodes = markdown_to_html_node(source_content)
+    html = nodes.to_html()
+    
+    page_title = extract_title(source_content)
+    
+    new_title = template_content.replace("{{ Title }}", page_title)
+    new_content = new_title.replace("{{ Content }}", html)
+    
+    with open(dest_path, "w") as f:
+        f.write(new_content)
+    
+
 def main():
     copy_contents("./static/", "./public/")
-    
+    generate_page("./content/index.md", "./template.html", "./public/index.html")
+        
 if __name__ == "__main__":
     main()
