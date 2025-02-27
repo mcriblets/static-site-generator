@@ -1,6 +1,7 @@
 import re
 import os
 import shutil
+import sys
 from textnode import *
 from htmlnode import *
 from splitnodes import *
@@ -64,6 +65,8 @@ def generate_page(from_path, template_path, dest_path):
     
     new_title = template_content.replace("{{ Title }}", page_title)
     new_content = new_title.replace("{{ Content }}", html)
+    new_basepath = new_content.replace('href="/', 'href="{dest_path}')
+    new_src = new_basepath.replace('src="/', 'src="{dest_path}')
     
     with open(dest_path, "w") as f:
         f.write(new_content)
@@ -88,8 +91,13 @@ def generate_multiple_pages(source_directory, template_path, target_directory):
 
 def main():
     
-    copy_contents("./static/", "./public/")
-    generate_multiple_pages("./content/", "./template.html", "./public/")
+    if len(sys.argv) == 2:
+        basepath = sys.argv[1]
+    else:
+        basepath = "./"
+    
+    copy_contents("./static/", "./docs/")
+    generate_multiple_pages("./content/", "./template.html", basepath + "docs/")
         
 if __name__ == "__main__":
     main()
