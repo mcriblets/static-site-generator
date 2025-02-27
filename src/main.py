@@ -4,7 +4,6 @@ import shutil
 from textnode import *
 from htmlnode import *
 from splitnodes import *
-from http.server import HTTPServer, SimpleHTTPRequestHandler
 
 
 def copy_contents(source_directory, target_directory): 
@@ -70,9 +69,27 @@ def generate_page(from_path, template_path, dest_path):
         f.write(new_content)
     
 
+def generate_multiple_pages(source_directory, template_path, target_directory):
+    source_path = os.path.abspath(source_directory)
+    target_path = os.path.abspath(target_directory)
+    
+    for file in os.listdir(source_path):
+        source_file = os.path.join(source_path, file)
+        target_file = os.path.join(target_path, file)
+        
+        if os.path.isfile(source_file) == True and source_file.endswith(".md"):
+            print(source_file)
+            target_file = target_file.replace(".md", ".html")
+            generate_page(source_file, template_path, target_file)
+        elif os.path.isdir(source_file) == True:
+            os.mkdir(target_file)
+            generate_multiple_pages(source_file, template_path, target_file)
+
+
 def main():
+    
     copy_contents("./static/", "./public/")
-    generate_page("./content/index.md", "./template.html", "./public/index.html")
+    generate_multiple_pages("./content/", "./template.html", "./public/")
         
 if __name__ == "__main__":
     main()
