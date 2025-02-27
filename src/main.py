@@ -49,7 +49,7 @@ def extract_title(markdown):
     raise Exception("No h1 header found!")
 
 
-def generate_page(from_path, template_path, dest_path):
+def generate_page(from_path, template_path, dest_path, basepath):
     print(f"Generating a page from {from_path} to {dest_path} using {template_path}!")
     
     source_file = open(from_path, "r")
@@ -65,14 +65,15 @@ def generate_page(from_path, template_path, dest_path):
     
     new_title = template_content.replace("{{ Title }}", page_title)
     new_content = new_title.replace("{{ Content }}", html)
-    new_basepath = new_content.replace('href="/', 'href="{dest_path}')
-    new_src = new_basepath.replace('src="/', 'src="{dest_path}')
+    new_basepath = new_content.replace('href="/', 'href="' + basepath)
+
+    new_src = new_basepath.replace('src="/', 'src="' + basepath)
     
     with open(dest_path, "w") as f:
-        f.write(new_content)
+        f.write(new_src)
     
 
-def generate_multiple_pages(source_directory, template_path, target_directory):
+def generate_multiple_pages(source_directory, template_path, target_directory, basepath):
     source_path = os.path.abspath(source_directory)
     target_path = os.path.abspath(target_directory)
     
@@ -83,10 +84,10 @@ def generate_multiple_pages(source_directory, template_path, target_directory):
         if os.path.isfile(source_file) == True and source_file.endswith(".md"):
             print(source_file)
             target_file = target_file.replace(".md", ".html")
-            generate_page(source_file, template_path, target_file)
+            generate_page(source_file, template_path, target_file, basepath)
         elif os.path.isdir(source_file) == True:
             os.mkdir(target_file)
-            generate_multiple_pages(source_file, template_path, target_file)
+            generate_multiple_pages(source_file, template_path, target_file, basepath)
 
 
 def main():
@@ -94,10 +95,10 @@ def main():
     if len(sys.argv) == 2:
         basepath = sys.argv[1]
     else:
-        basepath = "./"
+        basepath = "/"
     
     copy_contents("./static/", "./docs/")
-    generate_multiple_pages("./content/", "./template.html", basepath + "docs/")
+    generate_multiple_pages("./content/", "./template.html", "./docs/", basepath)
         
 if __name__ == "__main__":
     main()
