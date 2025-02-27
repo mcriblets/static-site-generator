@@ -214,6 +214,7 @@ def remove_markdown_quotes(quote_markdown):
 
 def remove_unordered_list(list_markdown):
     raw_list = re.sub(r'^\* ', '', list_markdown, flags=re.MULTILINE)
+    raw_list = re.sub(r'^\- ', '', raw_list, flags=re.MULTILINE)
     
     raw_list = raw_list.split("\n")
     
